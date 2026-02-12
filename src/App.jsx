@@ -38,6 +38,12 @@ import makeWorkflowImg from './assets/make-logo-real.png';
 import multiAgentArchImg from './assets/multi-agent-arch.png';
 import n8nWorkflowImg from './assets/n8n-workflow.png';
 
+// --- PDF IMPORTS ---
+import pdfCS50 from './assets/pdf/CS50x-Certificate.pdf';
+import pdfGoogleCloud from './assets/pdf/GoogleCloud-GCCF1x-Certificate.pdf';
+import pdfDigitalMarketing from './assets/pdf/Digital-Marketing-Certificate.pdf';
+import pdfProgrammierung from './assets/pdf/Programmierung-Basics-Attest.pdf';
+
 // --- DATEN & INHALTE ---
 
 const PROFILE = {
@@ -102,10 +108,10 @@ const EXPERIENCE = [
 ];
 
 const CERTIFICATES = [
-  { title: "CS50x: Computer Science", issuer: "Harvard University (edX)", year: "2024", id: "CS50x", pdf: "pdf/CS50x-Certificate.pdf" },
-  { title: "Google Cloud Computing Foundations", issuer: "Google Cloud / edX", year: "2024", id: "GCCF1x", pdf: "pdf/GoogleCloud-GCCF1x-Certificate.pdf" },
-  { title: "Fundamentals of Digital Marketing", issuer: "Google Digital Garage", year: "2019", id: "Digital Mrkt", pdf: "pdf/Digital-Marketing-Certificate.pdf" },
-  { title: "Einstieg Programmierung (C++/C#/Java)", issuer: "Klubschule Migros", year: "2019", id: "Basics", pdf: "pdf/Programmierung-Basics-Attest.pdf" },
+  { title: "CS50x: Computer Science", issuer: "Harvard University (edX)", year: "2024", id: "CS50x", pdf: pdfCS50 },
+  { title: "Google Cloud Computing Foundations", issuer: "Google Cloud / edX", year: "2024", id: "GCCF1x", pdf: pdfGoogleCloud },
+  { title: "Fundamentals of Digital Marketing", issuer: "Google Digital Garage", year: "2019", id: "Digital Mrkt", pdf: pdfDigitalMarketing },
+  { title: "Einstieg Programmierung (C++/C#/Java)", issuer: "Klubschule Migros", year: "2019", id: "Basics", pdf: pdfProgrammierung },
 ];
 
 // --- KOMPONENTEN ---
@@ -173,7 +179,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('overview');
   const [isPrinting, setIsPrinting] = useState(false);
 
-  const ACCESS_CODE = "portfolio"; 
+  const ACCESS_HASH = "f1cb6b59447aed8fab92fba6196ed8b0e53e01e26c7417c2563c1bc300966c62";
 
   const handlePrint = () => {
     setIsPrinting(true);
@@ -183,9 +189,16 @@ export default function App() {
     }, 100);
   };
 
-  const handleLogin = (e) => {
+  const hashPassword = async (pw) => {
+    const data = new TextEncoder().encode(pw);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+  };
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (passwordInput.toLowerCase() === ACCESS_CODE) {
+    const hashed = await hashPassword(passwordInput);
+    if (hashed === ACCESS_HASH) {
       setIsAuthenticated(true);
     } else {
       setErrorMsg("Zugriff verweigert. Falsches Passwort.");
@@ -224,7 +237,6 @@ export default function App() {
               <Unlock size={18} />
               Entsperren
             </button>
-            <p className="text-xs text-center text-slate-600 mt-4">Tipp für Preview: portfolio</p>
           </form>
         </div>
       </div>
@@ -610,7 +622,7 @@ export default function App() {
                        <span className="text-xs text-slate-600">ID: {cert.id}</span>
                        <div className="flex items-center gap-3">
                          <a 
-                           href={`${import.meta.env.BASE_URL}${cert.pdf}`}
+                           href={cert.pdf}
                            target="_blank" 
                            rel="noreferrer"
                            className="text-xs text-teal-400 hover:text-teal-300 flex items-center gap-1 transition-colors"
@@ -619,7 +631,7 @@ export default function App() {
                            <ExternalLink size={12} /> Ansehen
                          </a>
                          <a 
-                           href={`${import.meta.env.BASE_URL}${cert.pdf}`}
+                           href={cert.pdf}
                            download
                            className="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-colors"
                            title="Zertifikat herunterladen"
